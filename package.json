@@ -1,0 +1,41 @@
+{
+  "name": "our-atlas-prototype",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "build:sites": "vinext build",
+    "start": "next start",
+    "lint": "eslint .",
+    "copy-cesium": "node scripts/copy-cesium.mjs",
+    "postinstall": "npm run copy-cesium"
+  },
+  "dependencies": {
+    "@supabase/supabase-js": "^2.57.4",
+    "cesium": "^1.132.0",
+    "next": "^16.0.1",
+    "react": "^19.2.0",
+    "react-dom": "^19.2.0"
+  },
+  "devDependencies": {
+    "@cloudflare/vite-plugin": "^1.37.1",
+    "@types/node": "^24.10.0",
+    "@types/react": "^19.2.2",
+    "@types/react-dom": "^19.2.2",
+    "@vitejs/plugin-react": "^6.0.2",
+    "@vitejs/plugin-rsc": "^0.5.26",
+    "eslint": "^9.39.0",
+    "eslint-config-next": "^16.0.1",
+    "react-server-dom-webpack": "^19.2.8",
+    "typescript": "^5.9.3",
+    "vinext": "^0.0.50",
+    "vite": "^8.0.13",
+    "wrangler": "^4.92.0"
+  },
+  "overrides": {
+    "postcss": "8.5.25",
+    "sharp": "0.35.3"
+  },
+  "type": "module"
+}

@@ -1,0 +1,104 @@
+.city-archive-page {
+  min-height: calc(100vh - 62px);
+  padding: 54px 44px 100px;
+  background:
+    radial-gradient(circle at 76% -8%, rgba(223, 186, 116, .16), transparent 31rem),
+    radial-gradient(circle at 10% 72%, rgba(114, 139, 164, .08), transparent 28rem),
+    #f4f1ea;
+}
+
+.city-archive-hero {
+  display: flex;
+  max-width: 1200px;
+  align-items: end;
+  justify-content: space-between;
+  gap: 28px;
+  margin: 0 auto 38px;
+  padding-bottom: 34px;
+  border-bottom: 1px solid rgba(49, 44, 38, .09);
+}
+
+.city-archive-hero h1 {
+  max-width: 780px;
+  margin: 10px 0 9px;
+  color: #27231f;
+  font: 600 clamp(34px, 4.5vw, 58px) "Noto Serif SC", serif;
+  letter-spacing: -.06em;
+  line-height: 1.15;
+}
+
+.city-archive-hero > div > p:last-child {
+  max-width: 620px;
+  margin: 0;
+  color: #827b70;
+  line-height: 1.8;
+}
+
+.city-archive-hero > button {
+  display: flex;
+  min-width: 235px;
+  align-items: center;
+  gap: 12px;
+  padding: 11px 15px 11px 11px;
+  border: 1px solid rgba(255, 255, 255, .13);
+  border-radius: 18px;
+  color: #fff3ce;
+  background: linear-gradient(180deg, #302d26, #181713);
+  box-shadow: 0 14px 34px rgba(35, 28, 20, .19);
+  text-align: left;
+}
+
+.city-archive-hero > button > span:first-child {
+  display: grid;
+  width: 43px;
+  height: 43px;
+  flex: 0 0 auto;
+  place-items: center;
+  border-radius: 13px;
+  color: #342b1d;
+  background: linear-gradient(145deg, #ffdf8f, #eab658);
+  font-size: 24px;
+}
+
+.city-archive-hero > button > span:last-child {
+  display: grid;
+  gap: 2px;
+}
+
+.city-archive-hero > button b {
+  font-size: 13px;
+}
+
+.city-archive-hero > button small {
+  color: rgba(255, 255, 255, .48);
+  font-size: 9px;
+}
+
+.city-archive-page .atlas-library {
+  margin-top: 0;
+}
+
+.city-archive-page .atlas-library > header {
+  margin-bottom: 20px;
+}
+
+@media (max-width: 740px) {
+  .city-archive-page {
+    min-height: calc(100svh - 54px);
+    padding: 35px 16px 116px;
+  }
+
+  .city-archive-hero {
+    display: grid;
+    margin-bottom: 27px;
+    padding-bottom: 26px;
+  }
+
+  .city-archive-hero h1 {
+    font-size: 38px;
+  }
+
+  .city-archive-hero > button {
+    width: 100%;
+  }
+}

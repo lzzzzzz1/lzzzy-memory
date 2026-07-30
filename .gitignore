@@ -1,0 +1,10 @@
+node_modules
+.next
+.next-*
+dist
+.wrangler
+work
+.env.local
+*.log
+*.tsbuildinfo
+public/cesium

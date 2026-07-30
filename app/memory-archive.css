@@ -1,0 +1,214 @@
+.atlas-library {
+  max-width: 1200px;
+  margin: 32px auto 0;
+}
+
+.atlas-library > header {
+  display: flex;
+  align-items: end;
+  justify-content: space-between;
+  gap: 18px;
+  margin-bottom: 14px;
+}
+
+.atlas-library h2 {
+  margin: 6px 0 0;
+  color: #292621;
+  font: 600 24px "Noto Serif SC", serif;
+  letter-spacing: -.035em;
+}
+
+.atlas-library > header > button {
+  padding: 9px 12px;
+  border: 1px solid var(--line);
+  border-radius: 11px;
+  color: #5f5a53;
+  background: rgba(255, 255, 253, .78);
+}
+
+.city-archive-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 10px;
+}
+
+.city-archive-card {
+  position: relative;
+  display: grid;
+  min-height: 190px;
+  align-content: end;
+  overflow: hidden;
+  padding: 20px;
+  border: 1px solid rgba(54, 49, 43, .09);
+  border-radius: 19px;
+  color: #302c27;
+  background:
+    radial-gradient(circle at 82% 12%, rgba(244, 191, 103, .14), transparent 7rem),
+    rgba(255, 255, 253, .78);
+  box-shadow: 0 1px 2px rgba(35, 31, 27, .025);
+  text-align: left;
+}
+
+.archive-cover,
+.archive-cover-shade {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+}
+
+.archive-cover {
+  object-fit: cover;
+  transition: filter 500ms ease, transform 750ms cubic-bezier(.2, .8, .2, 1);
+}
+
+.archive-cover-shade {
+  background: linear-gradient(180deg, rgba(7, 10, 13, .08) 12%, rgba(7, 9, 12, .8) 100%);
+}
+
+.city-archive-card.has-cover {
+  min-height: 260px;
+  border-color: rgba(255, 255, 255, .12);
+  color: #fff;
+  box-shadow: 0 18px 48px rgba(29, 25, 20, .16);
+}
+
+.city-archive-card.has-cover:hover .archive-cover {
+  filter: saturate(1.07) contrast(1.03);
+  transform: scale(1.045);
+}
+
+.city-archive-card.has-cover > span,
+.city-archive-card.has-cover > strong,
+.city-archive-card.has-cover > small {
+  position: relative;
+}
+
+.city-archive-card.has-cover .archive-index,
+.city-archive-card.has-cover > small,
+.city-archive-card.has-cover .archive-summary,
+.city-archive-card.has-cover .archive-latest,
+.city-archive-card.has-cover .archive-arrow {
+  color: rgba(255, 255, 255, .68);
+}
+
+.city-archive-card.has-cover .archive-light {
+  position: absolute;
+}
+
+.city-archive-card:hover {
+  border-color: rgba(164, 116, 66, .2);
+  background-color: #fff;
+  box-shadow: var(--craft-shadow);
+  transform: translateY(-2px);
+}
+
+.archive-index {
+  position: absolute;
+  top: 17px;
+  left: 18px;
+  color: #aaa39a;
+  font: 10px "DM Mono", monospace;
+}
+
+.archive-light {
+  position: absolute;
+  top: 21px;
+  right: 22px;
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: #ffd474;
+  box-shadow: 0 0 0 5px rgba(255, 205, 101, .11), 0 0 18px #f6b64f;
+}
+
+.city-archive-card strong {
+  font: 600 22px "Noto Serif SC", serif;
+}
+
+.city-archive-card > small {
+  margin-top: 3px;
+  color: #938d84;
+}
+
+.archive-summary {
+  margin-top: 17px;
+  color: #665f56;
+  font-size: 11px;
+}
+
+.archive-latest {
+  max-width: calc(100% - 25px);
+  margin-top: 5px;
+  overflow: hidden;
+  color: #9b958c;
+  font-size: 10px;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.archive-arrow {
+  position: absolute;
+  right: 18px;
+  bottom: 18px;
+  color: #9c958c;
+}
+
+.city-archive-empty {
+  display: grid;
+  min-height: 190px;
+  place-items: center;
+  align-content: center;
+  gap: 7px;
+  border: 1px dashed rgba(53, 48, 42, .15);
+  border-radius: 19px;
+  color: #4f4a43;
+  background: rgba(255, 255, 253, .45);
+}
+
+.city-archive-empty span {
+  color: #b9755b;
+  font-size: 21px;
+}
+
+.city-archive-empty small {
+  color: var(--muted);
+}
+
+@media (max-width: 980px) {
+  .city-archive-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 620px) {
+  .atlas-library {
+    margin-top: 24px;
+  }
+
+  .atlas-library > header {
+    align-items: flex-start;
+  }
+
+  .atlas-library h2 {
+    font-size: 20px;
+  }
+
+  .atlas-library > header > button {
+    display: none;
+  }
+
+  .city-archive-grid {
+    display: flex;
+    margin-right: -12px;
+    padding-right: 12px;
+    overflow-x: auto;
+    scrollbar-width: none;
+  }
+
+  .city-archive-card,
+  .city-archive-empty {
+    width: 255px;
+    min-width: 255px;
+  }
+}
