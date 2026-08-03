@@ -576,37 +576,6 @@
   color: rgba(239, 200, 112, 0.6);
 }
 
-.earth-archive {
-  position: relative;
-  z-index: 4;
-  padding: 76px 48px 110px;
-  color: #2e2a24;
-  background:
-    radial-gradient(circle at 70% -10%, rgba(228, 191, 121, 0.14), transparent 32rem),
-    #f4f1ea;
-}
-
-.earth-archive-heading {
-  width: min(1140px, 100%);
-  margin: 0 auto 32px;
-}
-
-.earth-archive-heading .overline {
-  color: #a07838 !important;
-}
-
-.earth-archive-heading h2 {
-  margin: 8px 0;
-  color: #25211d;
-  font: 600 clamp(28px, 3vw, 43px) "Noto Serif SC", serif;
-  letter-spacing: -0.05em;
-}
-
-.earth-archive-heading > p:last-child {
-  margin: 0;
-  color: #827b70;
-}
-
 @keyframes earth-reveal {
   from {
     opacity: 0;
@@ -775,17 +744,6 @@
     bottom: 218px;
   }
 
-  .earth-archive {
-    padding: 54px 16px 118px;
-  }
-
-  .earth-archive-heading {
-    margin-bottom: 24px;
-  }
-
-  .earth-archive-heading h2 {
-    font-size: 29px;
-  }
 }
 
 @media (prefers-reduced-motion: reduce) {

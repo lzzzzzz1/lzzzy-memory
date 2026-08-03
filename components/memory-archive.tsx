@@ -15,7 +15,7 @@ export default function MemoryArchive({ places, memories, onOpenCity, onAdd }: M
   return <section className="atlas-library">
     <header>
       <div>
-        <p className="overline">Map of Us 式共同档案</p>
+        <p className="overline">CITY CHAPTERS · {places.length} CITIES · {memories.length} MEMORIES</p>
         <h2>去过的城市，都有自己的章节</h2>
       </div>
       <button type="button" onClick={onAdd}>＋ 记录一次出发</button>

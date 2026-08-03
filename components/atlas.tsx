@@ -13,6 +13,7 @@ import CityMemoryPanel from "./city-memory-panel";
 import MemoryActions, { type MemoryEditDraft } from "./memory-actions";
 import MemoryArchive from "./memory-archive";
 import MemoryMedia from "./memory-media";
+import RandomMemoryFrame from "./random-memory-frame";
 import TowhereFusion, { type ArchiveSection } from "./towhere-fusion";
 import VisitComposer, { type VisitDraft } from "./visit-composer";
 
@@ -318,6 +319,11 @@ export default function Atlas({ trip: initialTrip = demoTrip, coupleId, userId, 
           </div>
           <button type="button" onClick={() => openVisitForm()}><span>＋</span><span><b>记录一次出发</b><small>国家、城市、文字与媒体</small></span></button>
         </header>
+        <RandomMemoryFrame
+          places={trip.places}
+          memories={memories}
+          onOpenCity={(place) => { setSelectedPlace(place); setView("city"); }}
+        />
         <MemoryArchive places={trip.places} memories={memories} onOpenCity={(place) => { setSelectedPlace(place); setView("city"); }} onAdd={() => openVisitForm()} />
       </section>}
       {view === "timeline" && <section className="timeline-canvas"><div className="canvas-title"><div><p className="page-icon">◷</p><h1>共同时间轴</h1><p>{trip.name} · 所有值得重看的小事</p></div><button className="subtle-action" onClick={() => openVisitForm()}>＋ 点亮并记录</button></div><div className="memory-stream">{memories.length === 0 && <button className="empty-memory" onClick={() => openVisitForm()}><span>✦</span><strong>留下第一段共同回忆</strong><small>选择一座城市，写几句话，或放入照片与视频。</small></button>}{memories.map((memory) => <article key={memory.id} className="memory-row"><time>{memory.occurredOn}</time><div><h2>{memory.title}</h2><p>{memory.body}</p><MemoryMedia memory={memory} /><MemoryActions memory={memory} onEdit={editMemory} onDelete={deleteMemory} /></div></article>)}</div></section>}

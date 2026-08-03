@@ -152,7 +152,8 @@ export default function Globe({ places, onPick }: GlobeProps) {
           shouldAnimate: true,
           requestRenderMode: true,
           maximumRenderTimeChange: 1 / 24,
-          useBrowserRecommendedResolution: true,
+          // Keep coastlines and city labels crisp on HiDPI screens.
+          useBrowserRecommendedResolution: false,
           terrainProvider,
         });
         if (imageryProvider !== polarProvider) {
@@ -169,8 +170,8 @@ export default function Globe({ places, onPick }: GlobeProps) {
         instance.scene.backgroundColor = Cesium.Color.fromCssColorString("#010204");
         instance.scene.highDynamicRange = true;
         instance.scene.postProcessStages.fxaa.enabled = true;
-        instance.resolutionScale = 1;
-        instance.scene.globe.maximumScreenSpaceError = window.innerWidth < 740 ? 1.9 : 1.35;
+        instance.resolutionScale = window.innerWidth < 740 ? 0.88 : 1;
+        instance.scene.globe.maximumScreenSpaceError = window.innerWidth < 740 ? 1.65 : 1.15;
         instance.scene.globe.tileCacheSize = window.innerWidth < 740 ? 112 : 240;
         instance.scene.globe.preloadAncestors = true;
         instance.scene.globe.preloadSiblings = false;
