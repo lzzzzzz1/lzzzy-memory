@@ -165,7 +165,6 @@ export default function Globe({ places, onPick }: GlobeProps) {
         viewer.current = instance;
         cesium.current = Cesium;
 
-        (instance.cesiumWidget.creditContainer as HTMLElement).style.display = "none";
         instance.scene.skyBox = undefined;
         instance.scene.backgroundColor = Cesium.Color.fromCssColorString("#010204");
         instance.scene.highDynamicRange = true;

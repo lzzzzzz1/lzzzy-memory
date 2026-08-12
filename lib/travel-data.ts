@@ -94,14 +94,118 @@ export async function loadMediaPolicy(client: Client, coupleId: string): Promise
 
 type UpdateMemoryInput = {
   memoryId: string;
+  coupleId: string;
   userId: string;
   title: string;
   body: string;
   occurredOn: string;
   version: number;
+  files: File[];
+  removedMediaIds: string[];
+  mediaPolicy?: MediaPolicy;
 };
 
 export async function updateMemoryRecord(client: Client, input: UpdateMemoryInput): Promise<number> {
+  const { data: currentMedia, error: mediaReadError } = await client
+    .from("media")
+    .select("id,bucket,object_key,mime_type,position")
+    .eq("couple_id", input.coupleId)
+    .eq("memory_id", input.memoryId)
+    .order("position");
+  if (mediaReadError) throw mediaReadError;
+
+  const removedIds = new Set(input.removedMediaIds);
+  if (removedIds.size !== input.removedMediaIds.length || [...removedIds].some((id) => !(currentMedia ?? []).some((item) => item.id === id))) {
+    throw new Error("INVALID_MEDIA_SELECTION");
+  }
+
+  const kept = (currentMedia ?? []).filter((item) => !removedIds.has(item.id as string));
+  const policy = input.mediaPolicy ?? DEFAULT_MEDIA_POLICY;
+  validateMediaFiles(input.files, {
+    ...policy,
+    maxImages: Math.max(0, policy.maxImages - kept.filter((item) => String(item.mime_type).startsWith("image/")).length),
+    maxVideos: Math.max(0, policy.maxVideos - kept.filter((item) => String(item.mime_type).startsWith("video/")).length),
+  });
+
+  const maxPosition = (currentMedia ?? []).reduce((maximum, item) => Math.max(maximum, Number(item.position ?? 0)), 0);
+  const preparedMedia: PreparedMedia[] = input.files.map((file, index) => {
+    const mimeType = resolveMediaType(file);
+    if (!mimeType) throw new Error("UNSUPPORTED_MEDIA");
+    const mediaId = crypto.randomUUID();
+    return {
+      id: mediaId,
+      object_key: `couples/${input.coupleId}/media/${input.occurredOn.slice(0, 4)}/${input.memoryId}/${mediaId}.${extensionForType(mimeType)}`,
+      mime_type: mimeType,
+      size_bytes: file.size,
+      position: maxPosition + index + 1,
+      file,
+    };
+  });
+
+  const uploadedKeys: string[] = [];
+  try {
+    for (const media of preparedMedia) {
+      const { error } = await client.storage.from("travel-media").upload(media.object_key, media.file, {
+        contentType: media.mime_type,
+        upsert: false,
+      });
+      if (error) throw error;
+      uploadedKeys.push(media.object_key);
+    }
+
+    const { data, error } = await client.rpc("update_memory_with_media", {
+      p_memory_id: input.memoryId,
+      p_couple_id: input.coupleId,
+      p_expected_version: input.version,
+      p_title: input.title.trim(),
+      p_body: input.body.trim(),
+      p_occurred_on: input.occurredOn,
+      p_remove_media_ids: input.removedMediaIds,
+      p_new_media: preparedMedia.map((media) => ({
+        id: media.id,
+        object_key: media.object_key,
+        mime_type: media.mime_type,
+        size_bytes: media.size_bytes,
+        position: media.position,
+      })),
+    });
+
+    let nextVersion: number;
+    if (error && (error.code === "PGRST202" || error.message.includes("update_memory_with_media"))) {
+      nextVersion = await updateMemoryRecordLegacy(client, input, preparedMedia);
+    } else if (error) {
+      throw error;
+    } else {
+      nextVersion = Number(data);
+    }
+
+    const removedObjects = (currentMedia ?? []).filter((item) => removedIds.has(item.id as string));
+    for (const [bucket, objectKeys] of groupObjectKeys(removedObjects)) {
+      const { error: cleanupError } = await client.storage.from(bucket).remove(objectKeys);
+      if (cleanupError) console.warn("Media metadata was removed but its private object could not be cleaned up.", cleanupError);
+    }
+    return nextVersion;
+  } catch (error) {
+    if (uploadedKeys.length) await client.storage.from("travel-media").remove(uploadedKeys);
+    throw error;
+  }
+}
+
+async function updateMemoryRecordLegacy(client: Client, input: UpdateMemoryInput, preparedMedia: PreparedMedia[]): Promise<number> {
+  if (preparedMedia.length) {
+    const { error } = await client.from("media").insert(preparedMedia.map((media) => ({
+      id: media.id,
+      couple_id: input.coupleId,
+      memory_id: input.memoryId,
+      object_key: media.object_key,
+      mime_type: media.mime_type,
+      size_bytes: media.size_bytes,
+      position: media.position,
+      created_by: input.userId,
+    })));
+    if (error) throw error;
+  }
+
   const { data, error } = await client
     .from("memories")
     .update({
@@ -117,11 +221,29 @@ export async function updateMemoryRecord(client: Client, input: UpdateMemoryInpu
     .maybeSingle();
 
   if (error) {
+    if (preparedMedia.length) await client.from("media").delete().in("id", preparedMedia.map((media) => media.id));
     if (error.message.includes("STALE_VERSION")) throw new Error("STALE_VERSION");
     throw error;
   }
-  if (!data) throw new Error("STALE_VERSION");
+  if (!data) {
+    if (preparedMedia.length) await client.from("media").delete().in("id", preparedMedia.map((media) => media.id));
+    throw new Error("STALE_VERSION");
+  }
+
+  if (input.removedMediaIds.length) {
+    const { error: removeError } = await client.from("media").delete().in("id", input.removedMediaIds).eq("memory_id", input.memoryId);
+    if (removeError) throw removeError;
+  }
   return Number(data.version);
+}
+
+function groupObjectKeys(rows: Array<{ bucket: unknown; object_key: unknown }>): Map<string, string[]> {
+  const grouped = new Map<string, string[]>();
+  for (const item of rows) {
+    const bucket = String(item.bucket || "travel-media");
+    grouped.set(bucket, [...(grouped.get(bucket) ?? []), String(item.object_key)]);
+  }
+  return grouped;
 }
 
 export async function deleteMemoryRecord(
@@ -153,12 +275,7 @@ export async function deleteMemoryRecord(
   const { error: mediaDeleteError } = await client.from("media").delete().in("id", ids);
   if (mediaDeleteError) console.warn("Deleted memory but could not remove its media rows.", mediaDeleteError);
 
-  const byBucket = new Map<string, string[]>();
-  for (const item of media) {
-    const bucket = String(item.bucket || "travel-media");
-    byBucket.set(bucket, [...(byBucket.get(bucket) ?? []), String(item.object_key)]);
-  }
-  for (const [bucket, objectKeys] of byBucket) {
+  for (const [bucket, objectKeys] of groupObjectKeys(media)) {
     const { error } = await client.storage.from(bucket).remove(objectKeys);
     if (error) console.warn("Deleted memory but could not remove its private media objects.", error);
   }

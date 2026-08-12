@@ -12,6 +12,7 @@ export default defineConfig([
     "out/**",
     "build/**",
     "work/**",
+    "node_modules.incomplete/**",
     "next-env.d.ts",
     "public/cesium/**",
   ]),

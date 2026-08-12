@@ -2,19 +2,21 @@
 
 import { useMemo } from "react";
 import type { Memory, Place } from "@/lib/types";
+import type { MediaPolicy } from "@/lib/media-policy";
 import MemoryActions, { type MemoryEditDraft } from "./memory-actions";
 import MemoryMedia from "./memory-media";
 
 type CityDetailProps = {
   place: Place;
   memories: Memory[];
+  mediaPolicy: MediaPolicy;
   onBack: () => void;
   onAdd: () => void;
   onEdit: (memory: Memory, draft: MemoryEditDraft) => Promise<void>;
   onDelete: (memory: Memory) => Promise<void>;
 };
 
-export default function CityDetail({ place, memories, onBack, onAdd, onEdit, onDelete }: CityDetailProps) {
+export default function CityDetail({ place, memories, mediaPolicy, onBack, onAdd, onEdit, onDelete }: CityDetailProps) {
   const visits = useMemo(() => {
     const grouped = new Map<string, Memory[]>();
     for (const memory of memories) {
@@ -63,7 +65,7 @@ export default function CityDetail({ place, memories, onBack, onAdd, onEdit, onD
             <h2>{memory.title}</h2>
             {memory.body && <p>{memory.body}</p>}
             <MemoryMedia memory={memory} />
-            <MemoryActions memory={memory} onEdit={onEdit} onDelete={onDelete} />
+            <MemoryActions memory={memory} mediaPolicy={mediaPolicy} onEdit={onEdit} onDelete={onDelete} />
           </section>)}
         </div>
       </article>)}

@@ -209,18 +209,37 @@ export default function Atlas({ trip: initialTrip = demoTrip, coupleId, userId, 
       if (supabase && coupleId && userId) {
         await updateMemoryRecord(supabase, {
           memoryId: memory.id,
+          coupleId,
           userId,
           title: draft.title,
           body: draft.body,
           occurredOn: draft.occurredOn,
           version: memory.version,
+          files: draft.files,
+          removedMediaIds: draft.removedMediaIds,
+          mediaPolicy,
         });
         await onRefresh?.();
       } else {
         setLocalTrip((current) => ({
           ...current,
           memories: current.memories.map((item) => item.id === memory.id
-            ? { ...item, ...draft, version: item.version + 1 }
+            ? {
+              ...item,
+              title: draft.title,
+              body: draft.body,
+              occurredOn: draft.occurredOn,
+              media: [
+                ...item.media.filter((asset) => !draft.removedMediaIds.includes(asset.id)),
+                ...draft.files.map((file, index) => {
+                  const mimeType = resolveMediaType(file);
+                  const kind = mimeType ? mediaKindForType(mimeType) : null;
+                  if (!mimeType || !kind) throw new Error("UNSUPPORTED_MEDIA");
+                  return { id: crypto.randomUUID(), url: URL.createObjectURL(file), kind, mimeType, sizeBytes: file.size, position: item.media.length + index + 1 };
+                }),
+              ],
+              version: item.version + 1,
+            }
             : item),
         }));
       }
@@ -326,8 +345,8 @@ export default function Atlas({ trip: initialTrip = demoTrip, coupleId, userId, 
         />
         <MemoryArchive places={trip.places} memories={memories} onOpenCity={(place) => { setSelectedPlace(place); setView("city"); }} onAdd={() => openVisitForm()} />
       </section>}
-      {view === "timeline" && <section className="timeline-canvas"><div className="canvas-title"><div><p className="page-icon">◷</p><h1>共同时间轴</h1><p>{trip.name} · 所有值得重看的小事</p></div><button className="subtle-action" onClick={() => openVisitForm()}>＋ 点亮并记录</button></div><div className="memory-stream">{memories.length === 0 && <button className="empty-memory" onClick={() => openVisitForm()}><span>✦</span><strong>留下第一段共同回忆</strong><small>选择一座城市，写几句话，或放入照片与视频。</small></button>}{memories.map((memory) => <article key={memory.id} className="memory-row"><time>{memory.occurredOn}</time><div><h2>{memory.title}</h2><p>{memory.body}</p><MemoryMedia memory={memory} /><MemoryActions memory={memory} onEdit={editMemory} onDelete={deleteMemory} /></div></article>)}</div></section>}
-      {view === "city" && selectedPlace.id !== "pending" && <CityDetail place={selectedPlace} memories={selectedMemories} onBack={() => setView("archive")} onAdd={() => openVisitForm(selectedPlace)} onEdit={editMemory} onDelete={deleteMemory} />}
+      {view === "timeline" && <section className="timeline-canvas"><div className="canvas-title"><div><p className="page-icon">◷</p><h1>共同时间轴</h1><p>{trip.name} · 所有值得重看的小事</p></div><button className="subtle-action" onClick={() => openVisitForm()}>＋ 点亮并记录</button></div><div className="memory-stream">{memories.length === 0 && <button className="empty-memory" onClick={() => openVisitForm()}><span>✦</span><strong>留下第一段共同回忆</strong><small>选择一座城市，写几句话，或放入照片与视频。</small></button>}{memories.map((memory) => <article key={memory.id} className="memory-row"><time>{memory.occurredOn}</time><div><h2>{memory.title}</h2><p>{memory.body}</p><MemoryMedia memory={memory} /><MemoryActions memory={memory} mediaPolicy={mediaPolicy} onEdit={editMemory} onDelete={deleteMemory} /></div></article>)}</div></section>}
+      {view === "city" && selectedPlace.id !== "pending" && <CityDetail place={selectedPlace} memories={selectedMemories} mediaPolicy={mediaPolicy} onBack={() => setView("archive")} onAdd={() => openVisitForm(selectedPlace)} onEdit={editMemory} onDelete={deleteMemory} />}
       {view === "backup" && supabase && coupleId && <BackupCenter client={supabase} coupleId={coupleId} onBack={() => setView("trip")} onRestored={onRefresh ?? (async () => undefined)} />}
       {archiveSection && <TowhereFusion key={archiveSection} section={archiveSection} trip={trip} coupleId={coupleId} userId={userId} />}
     </section>
@@ -337,7 +356,7 @@ export default function Atlas({ trip: initialTrip = demoTrip, coupleId, userId, 
       <button className="mobile-add" onClick={() => openVisitForm()}><span>＋</span><small>记录</small></button>
       <button className={view === "timeline" ? "active" : ""} onClick={() => setView("timeline")}><span>◷</span><small>时间轴</small></button>
     </nav>
-    {showCityPanel && selectedPlace.id !== "pending" && <CityMemoryPanel place={selectedPlace} memories={selectedMemories} onClose={() => setShowCityPanel(false)} onAdd={() => { setShowCityPanel(false); openVisitForm(selectedPlace); }} onOpenFull={() => { setShowCityPanel(false); setView("city"); }} onEdit={editMemory} onDelete={deleteMemory} />}
+    {showCityPanel && selectedPlace.id !== "pending" && <CityMemoryPanel place={selectedPlace} memories={selectedMemories} mediaPolicy={mediaPolicy} onClose={() => setShowCityPanel(false)} onAdd={() => { setShowCityPanel(false); openVisitForm(selectedPlace); }} onOpenFull={() => { setShowCityPanel(false); setView("city"); }} onEdit={editMemory} onDelete={deleteMemory} />}
     {showVisitForm && <VisitComposer place={formPlace} mediaPolicy={mediaPolicy} saving={saving} onClose={() => setShowVisitForm(false)} onSave={saveVisit} />}
     {notice && <p className="notice" role="status">{notice}</p>}
   </main>;

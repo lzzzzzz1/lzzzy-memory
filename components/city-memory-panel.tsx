@@ -1,12 +1,14 @@
 "use client";
 
 import type { Memory, Place } from "@/lib/types";
+import type { MediaPolicy } from "@/lib/media-policy";
 import MemoryActions, { type MemoryEditDraft } from "./memory-actions";
 import MemoryMedia from "./memory-media";
 
 type CityMemoryPanelProps = {
   place: Place;
   memories: Memory[];
+  mediaPolicy: MediaPolicy;
   onClose: () => void;
   onAdd: () => void;
   onOpenFull: () => void;
@@ -14,7 +16,7 @@ type CityMemoryPanelProps = {
   onDelete: (memory: Memory) => Promise<void>;
 };
 
-export default function CityMemoryPanel({ place, memories, onClose, onAdd, onOpenFull, onEdit, onDelete }: CityMemoryPanelProps) {
+export default function CityMemoryPanel({ place, memories, mediaPolicy, onClose, onAdd, onOpenFull, onEdit, onDelete }: CityMemoryPanelProps) {
   return <div className="city-panel-layer" role="presentation" onMouseDown={(event) => {
     if (event.target === event.currentTarget) onClose();
   }}>
@@ -40,7 +42,7 @@ export default function CityMemoryPanel({ place, memories, onClose, onAdd, onOpe
             <h3>{memory.title}</h3>
             {memory.body && <p>{memory.body}</p>}
             <MemoryMedia memory={memory} compact />
-            <MemoryActions memory={memory} onEdit={onEdit} onDelete={onDelete} compact />
+            <MemoryActions memory={memory} mediaPolicy={mediaPolicy} onEdit={onEdit} onDelete={onDelete} compact />
           </article>)}
         </div>}
       </div>

@@ -161,6 +161,109 @@
   font-size: 11px;
 }
 
+.memory-editor-media {
+  display: grid;
+  gap: 10px;
+  margin: 18px 0 0;
+  padding: 0;
+  border: 0;
+}
+
+.memory-editor-media legend {
+  margin-bottom: 8px;
+  color: #514c46;
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.memory-editor-existing {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 8px;
+}
+
+.memory-editor-existing > div {
+  position: relative;
+  aspect-ratio: 1;
+  overflow: hidden;
+  border-radius: 11px;
+  background: #eeeae3;
+}
+
+.memory-editor-existing img,
+.memory-editor-existing video {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.memory-editor-existing .removed img,
+.memory-editor-existing .removed video {
+  opacity: .25;
+  filter: grayscale(1);
+}
+
+.memory-editor-existing button {
+  position: absolute;
+  right: 5px;
+  bottom: 5px;
+  padding: 4px 7px;
+  border: 0;
+  border-radius: 8px;
+  color: #fff;
+  background: rgba(30, 27, 24, .78);
+  font-size: 10px;
+}
+
+.memory-editor-file-input {
+  display: none;
+}
+
+.memory-editor-file-list {
+  display: grid;
+  gap: 6px;
+}
+
+.memory-editor-file-list span {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  min-width: 0;
+  padding: 7px 9px;
+  border-radius: 9px;
+  color: #6d675e;
+  background: #f5f2ed;
+  font-size: 11px;
+}
+
+.memory-editor-file-list span b {
+  color: #9a7a26;
+  font-size: 10px;
+}
+
+.memory-editor-file-list span button {
+  margin-left: auto;
+  border: 0;
+  color: #8b4a45;
+  background: transparent;
+  font-size: 17px;
+}
+
+.memory-editor-media .memory-editor-add-media {
+  justify-self: start;
+  padding: 8px 11px;
+  border: 1px dashed rgba(52, 48, 42, .22);
+  border-radius: 10px;
+  color: #5f5951;
+  background: #fff;
+  font-size: 11px;
+}
+
+.memory-editor-media > small {
+  color: #979087;
+  font-size: 10px;
+}
+
 @media (max-width: 560px) {
   .memory-editor-layer {
     align-items: end;
@@ -176,5 +279,9 @@
 
   .memory-editor h2 {
     font-size: 24px;
+  }
+
+  .memory-editor-existing {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
   }
 }

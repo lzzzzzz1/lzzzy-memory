@@ -154,15 +154,42 @@ export async function readAndValidateBackup(file: File, coupleId: string, onProg
   if (parsed.coupleId !== coupleId) throw new Error("BACKUP_COUPLE_MISMATCH");
   if (!parsed.records || !Array.isArray(parsed.objects)) throw new Error("BACKUP_FORMAT_INVALID");
 
+  const coupleScopedGroups = [
+    parsed.records.settings,
+    parsed.records.trips,
+    parsed.records.places,
+    parsed.records.visits,
+    parsed.records.memories,
+    parsed.records.media,
+    parsed.records.firsts ?? [],
+    parsed.records.letters ?? [],
+    parsed.records.checkins ?? [],
+  ];
+  if (coupleScopedGroups.some((rows) => !Array.isArray(rows) || rows.some((row) => row.couple_id !== coupleId))) {
+    throw new Error("BACKUP_COUPLE_MISMATCH");
+  }
+
+  const expectedPrefix = `couples/${coupleId}/media/`;
+  const objectKeys = new Set<string>();
+
   let totalBytes = 0;
   for (let index = 0; index < parsed.objects.length; index += 1) {
     const object = parsed.objects[index];
+    if (!object || objectKeys.has(object.objectKey) || !object.objectKey.startsWith(expectedPrefix)) {
+      throw new Error("BACKUP_OBJECT_PATH_INVALID");
+    }
+    objectKeys.add(object.objectKey);
     onProgress(`正在校验媒体 ${index + 1}/${parsed.objects.length}…`);
     const bytes = base64ToBytes(object.base64);
     if (bytes.byteLength !== object.sizeBytes || await sha256(bytes) !== object.sha256) {
       throw new Error(`BACKUP_CHECKSUM_FAILED:${object.objectKey}`);
     }
     totalBytes += bytes.byteLength;
+    if (totalBytes > MAX_IMPORT_BYTES) throw new Error("BACKUP_TOO_LARGE");
+  }
+
+  if (parsed.records.media.some((row) => !objectKeys.has(String(row.object_key)))) {
+    throw new Error("BACKUP_MEDIA_MISSING");
   }
 
   const backup = parsed as AtlasBackup;
